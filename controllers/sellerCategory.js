@@ -13,7 +13,7 @@ exports.create_Category = async (req, res) => {
 exports.get_Category = async (req, res) => {
     let Id = req.params.categoryId;
     try {
-        const category = await sCategory.findById(Id)
+        const category = await sCategory.findById(Id).populate('sellerId');
         return res.status(200).send(category)
     } catch (e) {
         return res.status(500).send(e.message)
