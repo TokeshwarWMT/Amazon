@@ -1,6 +1,6 @@
 const sProduct = require('../models/sellerProduct');
 
-exports.create_Product = async (req, res) => {
+exports.register = async (req, res) => {
     try {
         const product = await sProduct.create(req.body);
         return res.status(201).send(product)
@@ -13,7 +13,14 @@ exports.create_Product = async (req, res) => {
 exports.get_Product = async (req, res) => {
     let Id = req.params.productId;
     try {
-        const product = await sProduct.findById(Id)
+        const product = await sProduct.findById(Id).populate({
+            path: 'categoryId',
+            model: 'sCategory',
+            populate: {
+                path: 'sellerId',
+                model: 'Seller'
+            }
+        })
         return res.status(200).send(product)
     } catch (e) {
         return res.status(500).send(e.message)
@@ -37,9 +44,13 @@ exports.filter_Product = async (req, res) => {
 
 exports.update_Product = async (req, res) => {
     let data = req.body;
-    let Id = req.params.productId;
+    let productId = req.params.productId;
+    let sellerId = req.params.sellerId;
+    if (sellerId !== req.loggedInSeller.id) {
+        return res.status(401).send('unauthorized access!!')
+    }
     try {
-        const product = await sProduct.findByIdAndUpdate(Id, {$set: data}, {new: true})
+        const product = await sProduct.findByIdAndUpdate(productId, {$set: data}, {new: true})
         return res.status(201).send(product)
     } catch (e) {
         return res.status(500).send(e.message)
@@ -48,9 +59,16 @@ exports.update_Product = async (req, res) => {
 
 
 exports.delete_Product = async (req, res) => {
-    let Id = req.params.productId;
+    let productId = req.params.productId;
+    let sellerId = req.params.sellerId;
+    if (sellerId !== req.loggedInSeller.id) {
+        return res.status(401).send('unauthorized access!!')
+    }
     try {
-        const product = await sProduct.findByIdAndRemove(Id)
+        const product = await sProduct.findByIdAndRemove(productId)
+        if (!product) {
+            return res.status(200).send('product already deleted!!')
+        }
         return res.status(200).send('Successfully deleted!!')
     } catch (e) {
         return res.status(500).send(e.message)

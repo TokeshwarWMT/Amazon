@@ -1,6 +1,6 @@
 const uProduct = require('../models/userProduct');
 
-exports.create_Product = async (req, res) => {
+exports.register = async (req, res) => {
     try {
         const product = await uProduct.create(req.body);
         return res.status(201).send(product)

@@ -10,11 +10,10 @@ const product = require('./routes/product.js');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/', user);
+app.use('/user', user);
 app.use('/seller', seller);
-app.use('/category', category);
-app.use('/product', product);
-
+app.use('/', category);
+app.use('/', product);
 
 let uri = process.env.MONGODB_URL;
 

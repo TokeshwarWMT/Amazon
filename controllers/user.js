@@ -122,21 +122,32 @@ exports.reset_Password = async (req, res) => {
 
 
 exports.update_Details = async (req, res) => {
+    // let userIId = req.params.userIId;
     let data = req.body;
-    let Id = req.params.userId;
+    let userId = req.params.userId;
+    if (userId !== req.loggedInUser.id) {
+        return res.status(401).send('unauthorized access!!')
+    };
     try {
-        const user = await User.findByIdAndUpdate(Id, { $set: data }, { new: true });
+        const user = await User.findByIdAndUpdate(userId, { $set: data }, { new: true });
         res.status(201).send(user)
     } catch (e) {
-        return res.status(500).send(e.message)
+        console.log(e)
+        return res.status(500).send(e)
     }
 };
 
 
 exports.delete_Details = async (req, res) => {
-    let Id = req.params.userId;
+    let userId = req.params.userId;
+    if (userId !== req.loggedInUser.id) {
+        return res.status(401).send('unauthorized access!!')
+    }
     try {
-        const user = await User.findByIdAndRemove(Id);
+        const user = await User.findByIdAndRemove(userId);
+        if (!user) {
+            return res.status(200).send('user data already deleted!!')
+        }
         return res.status(200).send('Successfully deleted!!')
     } catch (e) {
         return res.status(500).send(e.message)

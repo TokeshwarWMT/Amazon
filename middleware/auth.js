@@ -6,20 +6,23 @@ exports.userAuth = async (req, res, next) => {
         if (!token) {
             return res.status(400).send('please input token!!')
         };
+
         let key = process.env.USER_SECRET_KEY;
 
-        let decodedToken = jwt.verify(token, key)
-        if (!decodedToken) {
-            return res.status(400).send('invailid token!!')
-        };
+        let decodeToken = jwt.verify(token, key);
 
-        req.loggedInUser = decodedToken.userId
+        req.loggedInUser = decodeToken;
         next()
 
     } catch (e) {
-        return res.status(500).send(e.message)
+        if (e.message === 'invalid token') {
+            return res.status(400).send('invalid token!!');
+        } else {
+            return res.status(500).send(e.message);
+        };
     };
 };
+
 
 exports.sellerAuth = async (req, res, next) => {
     try {
@@ -27,17 +30,19 @@ exports.sellerAuth = async (req, res, next) => {
         if (!token) {
             return res.status(400).send('please input token!!')
         };
+
         let key = process.env.SELLER_SECRET_KEY;
 
-        let decodedToken = jwt.verify(token, key)
-        if (!decodedToken) {
-            return res.status(400).send('invailid token!!')
-        };
+        let decodeToken = jwt.verify(token, key);
 
-        req.loggedInUser = decodedToken.userId
+        req.loggedInSeller = decodeToken;
         next()
 
     } catch (e) {
-        return res.status(500).send(e.message)
+        if (e.message === 'invalid token') {
+            return res.status(400).send('invalid token!!');
+        } else {
+            return res.status(500).send(e.message);
+        }
     };
 };

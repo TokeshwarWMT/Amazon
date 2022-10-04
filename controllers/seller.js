@@ -39,9 +39,12 @@ exports.login = async (req, res) => {
 
 exports.update_Details = async (req, res) => {
     let data = req.body;
-    let Id = req.params.sellerId;
+    let sellerId = req.params.sellerId;
+    if (sellerId !== req.loggedInSeller.id) {
+        return res.status(401).send('unauthorized access!!')
+    }
     try {
-        const seller = await Seller.findByIdAndUpdate(Id, { $set: data }, { new: true });
+        const seller = await Seller.findByIdAndUpdate(sellerId, { $set: data }, { new: true });
         return res.status(201).send(seller)
     } catch (e) {
         return res.status(500).send(e.message)
@@ -50,9 +53,15 @@ exports.update_Details = async (req, res) => {
 
 
 exports.delete_Details = async (req, res) => {
-    let Id = req.params.sellerId;
+    let sellerId = req.params.sellerId;
+    if (sellerId !== req.loggedInSeller.id) {
+        return res.status(401).send('unauthorized access!!')
+    }
     try {
-        const seller = await Seller.findByIdAndRemove(Id);
+        const seller = await Seller.findByIdAndRemove(sellerId);
+        if (!seller) {
+            return res.status(400).send('seller details already deleted!!')
+        }
         return res.status(200).send('Successfully deleted!!')
     } catch (e) {
         return res.status(500).send(e.message)
