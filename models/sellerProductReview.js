@@ -8,7 +8,7 @@ const reviewSchema = new mongoose.Schema({
     },
     reviewedBy: String,
     rating: Number,
-    review: String,
+    reviews: String,
     reviewedAt: String
 });
 
