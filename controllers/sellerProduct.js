@@ -29,6 +29,20 @@ exports.get_Product = async (req, res) => {
 
 
 exports.filter_Product = async (req, res) => {
+
+    try {
+        const product = await sProduct.find(req.query);
+        if (!product) {
+            return res.status(400).send('product not found!!')
+        };
+        return res.status(200).send(product)
+    } catch (e) {
+        return res.status(500).send(e.message)
+    }
+};
+
+
+exports.filter_Product = async (req, res) => {
     let filter = req.query;
     try {
         const product = await sProduct.find(filter);
@@ -50,7 +64,7 @@ exports.update_Product = async (req, res) => {
         return res.status(401).send('unauthorized access!!')
     }
     try {
-        const product = await sProduct.findByIdAndUpdate(productId, {$set: data}, {new: true})
+        const product = await sProduct.findByIdAndUpdate(productId, { $set: data }, { new: true })
         return res.status(201).send(product)
     } catch (e) {
         return res.status(500).send(e.message)

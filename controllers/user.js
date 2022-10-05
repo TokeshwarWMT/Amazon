@@ -1,18 +1,27 @@
+require('dotenv').config();
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const uploadFile = require('./awsController');
 const nodemailer = require('nodemailer');
 const randomstring = require('randomstring');
 const res = require('express/lib/response');
 
 exports.user_Signup = async (req, res) => {
-    let data = req.body;
-    let { name, email, mobile, password } = data;
-    let userData = { name, email, mobile, password }
     try {
+        let data = req.body;
+        let files = req.files;
+        let { profileImage, name, email, mobile, password } = data;
+
+        // const profilePicture = await uploadFile(files[0])
+        const salt = await bcrypt.genSalt(10);
+        const encryptedPass = await bcrypt.hash(password, salt)
+        let userData = { name: name, email: email, mobile: mobile, password: encryptedPass }
         let user = await User.create(userData);
         return res.status(201).send(user)
     } catch (e) {
-        return res.status(500).send(e.message)
+        console.log(e)
+        return res.status(500).send(e)
     }
 };
 
@@ -43,29 +52,27 @@ exports.login = async (req, res) => {
 };
 
 
-const sendResetPassMail = async (fname, email, token) => {
-    fname = User.fname;
+const sendResetPassMail = async (name, email, token) => {
     try {
         const transporter = nodemailer.createTransport({
-            service: 'Gmail',
+            service: 'gmail',
             host: 'smtp.gmail.com',
-            port: 79,
+            port: 25,
             secure: false,
             requireTLS: true,
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASSWORD
             }
-        })
+        });
+
 
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: email,
             subject: 'for reset password',
-            html: 'Hi ' + fname + ', please copy the link <a href="http://127.0.0.1:3000/resetPassword?token=' + token + '">and reset your password</a>'
-        }
-
-        console.log(mailOptions)
+            html: 'Hi ' + name + ', please copy the link <a href="http://127.0.0.1:3000/reset_Password?token=' + token + '">and reset your password</a>'
+        };
 
         transporter.sendMail(mailOptions, function (error, info) {
             if (error) {
@@ -79,7 +86,7 @@ const sendResetPassMail = async (fname, email, token) => {
     } catch (e) {
         return res.status(500).send(e.message)
     }
-}
+};
 
 
 exports.forget_Password = async (req, res) => {
@@ -89,7 +96,7 @@ exports.forget_Password = async (req, res) => {
         if (userData) {
             const randomString = randomstring.generate();
             const data = await User.updateOne({ email: email }, { $set: { token: randomString } })
-            await sendResetPassMail(userData.fname, userData.email, randomString)
+            await sendResetPassMail(userData.name, userData.email, randomString)
             return res.status(201).send('please check you mail!!')
         } else {
             return res.status(404).send({
