@@ -1,5 +1,6 @@
 const sProductReview = require('../models/sellerProductReview');
 const sProduct = require('../models/sellerProduct');
+const { sProductReviewValidation } = require('../validation');
 
 exports.create_Review = async (req, res) => {
     let data = req.body;
@@ -7,6 +8,10 @@ exports.create_Review = async (req, res) => {
 
     data.productId = productId;
     try {
+
+        const { error } = sProductReviewValidation(req.body);
+        if (error) return res.status(400).send(error.details[0].message);
+
         const review = await sProductReview.create(data);
         await sProduct.findByIdAndUpdate(productId, { $inc: { reviews: 1 } })
         return res.status(201).send(review)
@@ -18,7 +23,7 @@ exports.create_Review = async (req, res) => {
 
 exports.find_Review = async (req, res) => {
     const { reviewId } = req.params;
-   
+
     try {
         const review = await sProductReview.findById(reviewId);
         if (!review) {
@@ -34,7 +39,7 @@ exports.find_Review = async (req, res) => {
 exports.update_Review = async (req, res) => {
     let data = req.body;
     const { reviewId } = req.params;
-    const {sellerId} = req.params;
+    const { sellerId } = req.params;
     if (sellerId !== req.loggedInSeller.id) {
         return res.status(400).send('unauthorized access!!')
     }
@@ -54,7 +59,7 @@ exports.update_Review = async (req, res) => {
 exports.delete_Review = async (req, res) => {
     const { productId } = req.params;
     const { reviewId } = req.params;
-    const {sellerId} = req.params;
+    const { sellerId } = req.params;
     if (sellerId !== req.loggedInSeller.id) {
         return res.status(400).send('unauthorized access!!')
     }

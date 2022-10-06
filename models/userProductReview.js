@@ -9,7 +9,10 @@ const reviewSchema = new mongoose.Schema({
     reviewedBy: String,
     rating: Number,
     review: String,
-    reviewedAt: String
+    reviewedAt: {
+        type: Date,
+        default: Date.now()
+    }
 });
 
 module.exports = mongoose.model('uProductReview', reviewSchema);

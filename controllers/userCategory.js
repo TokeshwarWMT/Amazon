@@ -1,7 +1,12 @@
 const uCategory = require('../models/userCategory');
+const { uCategoryValidation } = require('../validation');
 
 exports.register = async (req, res) => {
     try {
+
+        const { error } = uCategoryValidation(req.body);
+        if (error) return res.status(400).send(error.details[0].message);
+
         const category = await uCategory.create(req.body)
         return res.status(201).send(category)
     } catch (e) {

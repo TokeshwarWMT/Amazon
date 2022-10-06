@@ -1,9 +1,14 @@
 const Seller = require('../models/seller');
 const jwt = require('jsonwebtoken')
+const { sRegistrationValidation } = require('../validation');
 
 exports.seller_Signup = async (req, res) => {
     let data = req.body;
     try {
+
+        const { error } = sRegistrationValidation(req.body);
+        if (error) return res.status(400).send(error.details[0].message);
+
         const seller = await Seller.create(data);
         return res.status(201).send(seller)
     } catch (e) {

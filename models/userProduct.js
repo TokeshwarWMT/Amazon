@@ -8,7 +8,7 @@ const uProductSchema = new mongoose.Schema({
         ref: 'uCategory'
     },
     prize: Number,
-    Discount: Number,
+    discount: Number,
     total_quantity: Number,
     reviews: {
         type: Number,

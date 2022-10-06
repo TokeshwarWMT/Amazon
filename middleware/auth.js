@@ -4,7 +4,7 @@ exports.userAuth = async (req, res, next) => {
     try {
         let token = req.headers['x-api-key'];
         if (!token) {
-            return res.status(400).send('please input token!!')
+            return res.status(401).send('please input token!!')
         };
 
         let key = process.env.USER_SECRET_KEY;
@@ -28,7 +28,7 @@ exports.sellerAuth = async (req, res, next) => {
     try {
         let token = req.headers['x-api-key'];
         if (!token) {
-            return res.status(400).send('please input token!!')
+            return res.status(401).send('please input token!!')
         };
 
         let key = process.env.SELLER_SECRET_KEY;

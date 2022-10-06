@@ -1,7 +1,12 @@
 const uProduct = require('../models/userProduct');
+const { uProductValidation } = require('../validation');
 
 exports.register = async (req, res) => {
     try {
+
+        const { error } = uProductValidation(req.body);
+        if (error) return res.status(400).send(error.details[0].message);
+
         const product = await uProduct.create(req.body);
         return res.status(201).send(product)
     } catch (e) {
@@ -29,7 +34,6 @@ exports.get_Product = async (req, res) => {
 
 
 exports.filter_Product = async (req, res) => {
-    // let filter = req.query;
     try {
         const product = await uProduct.find(req.query);
         if (!product) {

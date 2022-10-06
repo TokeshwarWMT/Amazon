@@ -1,7 +1,12 @@
 const uProductReview = require('../models/userProductReview');
 const uProduct = require('../models/userProduct');
+const { uProductReviewValidation } = require('../validation');
 
 exports.create_Review = async (req, res) => {
+
+    const { error } = uProductReviewValidation(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
+
     let data = req.body;
     const { productId } = req.params;
 

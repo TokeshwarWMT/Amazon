@@ -2,16 +2,22 @@ require('dotenv').config();
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const uploadFile = require('./awsController');
+// const uploadFile = require('./awsController');
 const nodemailer = require('nodemailer');
 const randomstring = require('randomstring');
 const res = require('express/lib/response');
 
+const { uRegistrationValidation } = require('../validation');
+
 exports.user_Signup = async (req, res) => {
     try {
+
+        const { error } = uCategoryValidation(req.body);
+        if (error) return res.status(400).send(error.details[0].message);
+
         let data = req.body;
-        let files = req.files;
-        let { profileImage, name, email, mobile, password } = data;
+        // let files = req.files;
+        let { name, email, mobile, password } = data;
 
         // const profilePicture = await uploadFile(files[0])
         const salt = await bcrypt.genSalt(10);
@@ -63,13 +69,13 @@ const sendResetPassMail = async (name, email, token) => {
             secure: false,
             requireTLS: true,
             auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASSWORD
+                user: 'tokeshwars@webmobtech.com',
+                pass: 'Tiku123+-'
             }
         });
 
         const mailOptions = {
-            from: process.env.EMAIL_USER,
+            from: 'tokeshwars@webmobtech.com',
             to: email,
             subject: 'for reset password',
             html: 'Hi ' + name + ', please copy the link <a href="http://127.0.0.1:3000/reset_Password?token=' + token + '">and reset your password</a>'
@@ -130,7 +136,7 @@ exports.reset_Password = async (req, res) => {
 
 
 exports.update_Details = async (req, res) => {
-    // let userIId = req.params.userIId;
+
     let data = req.body;
     let userId = req.params.userId;
     if (userId !== req.loggedInUser.id) {
