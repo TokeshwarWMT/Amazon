@@ -28,24 +28,26 @@ exports.user_Signup = async (req, res) => {
 
 exports.login = async (req, res) => {
     let email = req.body.email;
-    let password = req.body.password;
+    let pass = req.body.password;
 
     try {
-        var user = await User.findOne({ email: email, password: password })
+        var user = await User.findOne({ email: email })
         if (!user) {
-            return res.status(404).send({
-                status: 'FAILED!!',
-                message: 'incorrect credentials!!'
-            })
-        }
+            return res.status(404).send({ message: 'incorrect email!!' })
+        };
+
+        const password = user.password;
+        let passMatch = await bcrypt.compare(pass, password)
         let key = process.env.USER_SECRET_KEY;
 
-        const token = jwt.sign({
-            id: user._id
-        }, key)
-        return res.status(201).send({ token: token })
-
-
+        if (passMatch) {
+            const token = jwt.sign({
+                id: user._id
+            }, key)
+            res.status(201).send({ token: token })
+        } else {
+            return res.status(400).send('incorrect password!!')
+        }
     } catch (e) {
         return res.status(500).send(e.message)
     }
@@ -65,7 +67,6 @@ const sendResetPassMail = async (name, email, token) => {
                 pass: process.env.EMAIL_PASSWORD
             }
         });
-
 
         const mailOptions = {
             from: process.env.EMAIL_USER,

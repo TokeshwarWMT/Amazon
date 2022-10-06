@@ -1,5 +1,5 @@
-const sProductReview = require('../models/sellerProductReview');
-const sProduct = require('../models/sellerProduct');
+const uProductReview = require('../models/userProductReview');
+const uProduct = require('../models/userProduct');
 
 exports.create_Review = async (req, res) => {
     let data = req.body;
@@ -7,8 +7,8 @@ exports.create_Review = async (req, res) => {
 
     data.productId = productId;
     try {
-        const review = await sProductReview.create(data);
-        await sProduct.findByIdAndUpdate(productId, { $inc: { reviews: 1 } })
+        const review = await uProductReview.create(data);
+        await uProduct.findByIdAndUpdate(productId, { $inc: { reviews: 1 } })
         return res.status(201).send(review)
     } catch (e) {
         return res.status(500).send(e.message)
@@ -18,9 +18,9 @@ exports.create_Review = async (req, res) => {
 
 exports.find_Review = async (req, res) => {
     const { reviewId } = req.params;
-   
+
     try {
-        const review = await sProductReview.findById(reviewId);
+        const review = await uProductReview.findById(reviewId);
         if (!review) {
             return res.status(404).send('review does not exist!!')
         };
@@ -34,13 +34,13 @@ exports.find_Review = async (req, res) => {
 exports.update_Review = async (req, res) => {
     let data = req.body;
     const { reviewId } = req.params;
-    const {sellerId} = req.params;
-    if (sellerId !== req.loggedInSeller.id) {
+    const { sellerId } = req.params;
+    if (sellerId !== req.loggedInUser.id) {
         return res.status(400).send('unauthorized access!!')
     }
 
     try {
-        const review = await sProductReview.findByIdAndUpdate(reviewId, { $set: data }, { new: true });
+        const review = await uProductReview.findByIdAndUpdate(reviewId, { $set: data }, { new: true });
         if (!review) {
             return res.status(404).send('review does not exist!!')
         };
@@ -54,21 +54,21 @@ exports.update_Review = async (req, res) => {
 exports.delete_Review = async (req, res) => {
     const { productId } = req.params;
     const { reviewId } = req.params;
-    const {sellerId} = req.params;
-    if (sellerId !== req.loggedInSeller.id) {
+    const { sellerId } = req.params;
+    if (sellerId !== req.loggedInUser.id) {
         return res.status(400).send('unauthorized access!!')
     }
 
     req.body.productId = productId;
 
     try {
-        const review = await sProductReview.findByIdAndRemove(reviewId);
+        const review = await uProductReview.findByIdAndRemove(reviewId);
         if (!review) {
             return res.status(400).send('review already deleted!!')
         }
-        await sProduct.findByIdAndUpdate(productId, { $inc: { reviews: -1 } });
+        await uProduct.findByIdAndUpdate(productId, { $inc: { reviews: -1 } });
         return res.status(201).send('successfully deleted review!!')
     } catch (e) {
         return res.status(500).send(e.message)
     }
-}
+};

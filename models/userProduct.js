@@ -10,6 +10,10 @@ const uProductSchema = new mongoose.Schema({
     prize: Number,
     Discount: Number,
     total_quantity: Number,
+    reviews: {
+        type: Number,
+        default: 0
+    },
     createdAt: {
         type: Date,
         default: Date.now()

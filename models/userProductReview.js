@@ -4,7 +4,7 @@ const ObjectId = mongoose.Schema.Types.ObjectId;
 const reviewSchema = new mongoose.Schema({
     productId: {
         type: ObjectId,
-        ref: 'sProduct'
+        ref: 'uProduct'
     },
     reviewedBy: String,
     rating: Number,
@@ -12,4 +12,4 @@ const reviewSchema = new mongoose.Schema({
     reviewedAt: String
 });
 
-module.exports = mongoose.model('sProductReview', reviewSchema);
+module.exports = mongoose.model('uProductReview', reviewSchema);
